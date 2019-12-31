@@ -14,27 +14,30 @@
 #define PURPLE_CHAN 35
 #define INSIDE_CHAN 36
 
-#define DEMO false
-#define DMX true
+#define MODE_PIN 2
+
+#define AUTOMODE false
+#define DMX true //choose between DMX and standard serial
 
 int dmxOrders[100];
 int lastDmxOrders[100];
 
 void checkSerial();
-void demo();
+void autoMode();
+
+ElWire elWire;
 
 void setup() {
     if (DMX) DMXSerial.init(DMXReceiver);
     elWire.begin();
     pinMode(13,OUTPUT);
-    elWire.write(0,HIGH);
-    delay(1000);
-    elWire.write(0,LOW);
+    pinMode(MODE_PIN, INPUT);
+    digitalWrite(MODE_PIN, HIGH); //enable pullup on switch
 }
 
 void loop() {
-    if (DEMO) {
-        demo();
+    if (digitalRead(MODE_PIN)) {
+        autoMode();
     } else {
         elWire.update();
 
@@ -87,60 +90,65 @@ void loop() {
     }
 }
 
-void demo(){
+void autoMode(){
 
+    //Making a circle for some seconds
+    int randomTime = random(1000, 10000);
     long lastUpdate = millis();
     elWire.circle(1000);
-    while (millis()-lastUpdate<=5000) {
+    while (millis()-lastUpdate<=randomTime) {
         elWire.update();
     }
+
+    //Strob for some seconds
+    randomTime = random(1000, 5000);
     lastUpdate = millis();
     elWire.strob(200);
-    while (millis()-lastUpdate<=5000) {
+    while (millis()-lastUpdate<=randomTime) {
         elWire.update();
     }
+
+    //Blinking at random periods for some seconds
+    randomTime = random(1000, 10000);
     lastUpdate = millis();
-    elWire.blink(0,random(30, 300));
-    elWire.blink(1,random(30, 300));
-    elWire.blink(2,random(30, 300));
-    elWire.blink(3,random(30, 300));
-    elWire.blink(4,random(30, 300));
-    elWire.blink(5,random(30, 300));
-    elWire.blink(6,random(30, 300));
-    elWire.blink(7,random(30, 300));
-    elWire.blink(8,random(30, 300));
-    elWire.blink(9,random(30, 300));
-    while (millis()-lastUpdate<=5000) {
+    elWire.randomBlink();
+    while (millis()-lastUpdate<=randomTime) {
         elWire.update();
     }
 
-    elWire.groupOrder(elWire.WHITE, 255);
-    delay(1000);
-    elWire.groupOrder(elWire.WHITE, 0);
-    elWire.groupOrder(elWire.BLUE, 255);
-    delay(1000);
-    elWire.groupOrder(elWire.BLUE, 0);
-    elWire.groupOrder(elWire.PURPLE, 255);
-    delay(1000);
-    elWire.groupOrder(elWire.PURPLE, 0);
-    elWire.groupOrder(elWire.INSIDE, 255);
-    delay(1000);
-    elWire.groupOrder(elWire.INSIDE, 0);
-    delay(1000);
-
-    /*elWire.blink(0,random(30, 300));
-    elWire.blink(1,random(30, 300));
-    elWire.blink(2,random(30, 300));
-    elWire.blink(3,random(30, 300));
-    elWire.blink(4,random(30, 300));
-    elWire.blink(5,random(30, 300));
-    elWire.blink(6,random(30, 300));
-    elWire.blink(7,random(30, 300));
-    elWire.blink(8,random(30, 300));
-    elWire.blink(9,random(30, 300));
-    while(1) {
+    //Blinking at random periods by groups for some seconds
+    randomTime = random(1000, 5000);
+    lastUpdate = millis();
+    elWire.groupOrder(elWire.WHITE, random(0, 255));
+    elWire.groupOrder(elWire.BLUE, random(0, 255));
+    elWire.groupOrder(elWire.PURPLE, random(0, 255));
+    elWire.groupOrder(elWire.INSIDE, random(0, 255));
+    while (millis()-lastUpdate<=randomTime) {
         elWire.update();
-    }*/
+    }
+
+    //Blinking at random periods by groups for some seconds
+    randomTime = random(300, 1000);
+    for (int i=0; i<10; i++) {
+        elWire.groupOrder(elWire.WHITE, 255);
+        elWire.update();
+        delay(randomTime);
+        elWire.groupOrder(elWire.WHITE, 0);
+        elWire.groupOrder(elWire.BLUE, 255);
+        elWire.update();
+        delay(randomTime);
+        elWire.groupOrder(elWire.BLUE, 0);
+        elWire.groupOrder(elWire.PURPLE, 255);
+        elWire.update();
+        delay(randomTime);
+        elWire.groupOrder(elWire.PURPLE, 0);
+        elWire.groupOrder(elWire.INSIDE, 255);
+        elWire.update();
+        delay(randomTime);
+        elWire.groupOrder(elWire.INSIDE, 0);
+        elWire.update();
+
+    }
 }
 
 /*void checkSerial() {  //reads orders on serial port. Orders must be like channel|value with channel<10

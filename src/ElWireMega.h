@@ -38,6 +38,7 @@ public:
     void circle(uint16_t period);
     void strob(uint16_t period);
     void groupOrder(Groups group, int value);
+    void randomBlink();
     void update();
 
 private:

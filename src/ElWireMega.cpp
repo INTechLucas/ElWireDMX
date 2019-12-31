@@ -140,3 +140,9 @@ void ElWire::groupOrder(ElWire::Groups group, int value) {
         }
     }
 }
+
+void ElWire::randomBlink() {
+    for (int i=0; i<=NB_WIRES; i++) {
+        blink(i, random(30, 1000));
+    }
+}
